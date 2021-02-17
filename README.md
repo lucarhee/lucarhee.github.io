@@ -1,43 +1,26 @@
-## Developer Portfolio Landing Page Template
+@todo 링크를 우리말로 바꾸기
 
-### Introduction
+## 개발자 포트폴리오 템플릿
 
-Use this template if you need a quick developer / data science portfolio! Based on a Minimal Jekyll theme for GitHub Pages.
+### 소개글
+
+데이터 과학, 개발자 포트폴리오 페이지를 빠르게 만들고 싶을 때 이 템플릿을 쓰세요!
+깃헙 페이지 테마인 Minimal Jekyll 테마를 기반으로 만들었어요.
 
 <img src="images/demo.gif?raw=true"/>
 
-### Installation
+### 설치하기
 
 See full step by step tutorial [on Medium](https://medium.com/@evanca/set-up-your-portfolio-website-in-less-than-10-minutes-with-github-pages-d0efa8ff56fd).
 ___
 
-You can use the editor on GitHub to maintain and preview the content for your website in Markdown files.
+깃헙 웹사이트에서 마크다운을 편집하여 콘텐츠를 관리하거나 미리 볼 수 있습니다.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+이 저장소에 커밋할 때마다 깃헙페이지는 마크다운 파일을 가지고 콘텐츠를 생성하여 페이지를 보여줄 것입니다.
 
-### Markdown
+### 마크다운 설명은 생략합니다.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+여기서 보세요. [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
 
 ### Roadmap
 
