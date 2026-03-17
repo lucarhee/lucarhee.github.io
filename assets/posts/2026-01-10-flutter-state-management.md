@@ -1,0 +1,241 @@
+---
+title: Flutter 상태관리 비교: Provider vs Riverpod vs Bloc
+date: 2026-01-10
+description: Flutter의 대표적인 세 가지 상태관리 솔루션을 실제 예제를 통해 비교 분석합니다.
+tags: [flutter, state-management, architecture]
+readTime: 15
+---
+
+# Flutter 상태관리 비교: Provider vs Riverpod vs Bloc
+
+Flutter 개발에서 가장 많이 논쟁되는 주제 중 하나가 바로 **상태관리(State Management)**입니다. 이 글에서는 현재 가장 많이 사용되는 세 가지 솔루션을 같은 예제(카운터 앱)로 비교합니다.
+
+## 왜 상태관리가 필요한가?
+
+Flutter는 위젯 트리로 구성되어 있습니다. 상위 위젯의 데이터를 하위 위젯에 전달하려면 `setState`만으로는 한계가 있습니다.
+
+```dart
+// 문제: props drilling
+class GrandParent extends StatefulWidget {
+  @override
+  Widget build(context) => Parent(count: _count, onIncrement: _increment);
+}
+
+class Parent extends StatelessWidget {
+  final int count;
+  final VoidCallback onIncrement;
+  // count를 사용하지도 않으면서 Child에 전달만 함
+  @override
+  Widget build(context) => Child(count: count, onIncrement: onIncrement);
+}
+```
+
+---
+
+## 1. Provider
+
+`provider` 패키지는 Flutter 공식 팀이 권장하는 가장 기본적인 상태관리 솔루션입니다.
+
+### 설정
+
+```dart
+// pubspec.yaml
+dependencies:
+  provider: ^6.1.2
+```
+
+### ChangeNotifier 생성
+
+```dart
+class CounterModel extends ChangeNotifier {
+  int _count = 0;
+  int get count => _count;
+
+  void increment() {
+    _count++;
+    notifyListeners(); // 리스너들에게 변경 알림
+  }
+}
+```
+
+### 앱에 등록 및 사용
+
+```dart
+void main() {
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => CounterModel(),
+      child: const MyApp(),
+    ),
+  );
+}
+
+// 어디서든 접근 가능
+class CounterWidget extends StatelessWidget {
+  @override
+  Widget build(context) {
+    final counter = context.watch<CounterModel>();
+    return Column(
+      children: [
+        Text('${counter.count}'),
+        ElevatedButton(
+          onPressed: context.read<CounterModel>().increment,
+          child: const Text('+'),
+        ),
+      ],
+    );
+  }
+}
+```
+
+**장점**: 간단하고 배우기 쉬움, 공식 지원
+**단점**: 규모가 커지면 관리가 복잡해짐
+
+---
+
+## 2. Riverpod
+
+Riverpod은 Provider의 단점을 보완한 차세대 상태관리 패키지입니다. Provider 작성자가 만들었습니다.
+
+### 설정
+
+```dart
+dependencies:
+  flutter_riverpod: ^2.5.1
+```
+
+### Provider 정의
+
+```dart
+// 전역으로 선언 (위젯 트리 밖)
+final counterProvider = StateNotifierProvider<CounterNotifier, int>((ref) {
+  return CounterNotifier();
+});
+
+class CounterNotifier extends StateNotifier<int> {
+  CounterNotifier() : super(0);
+
+  void increment() => state++;
+  void decrement() => state--;
+  void reset() => state = 0;
+}
+```
+
+### 사용
+
+```dart
+void main() {
+  runApp(
+    const ProviderScope(child: MyApp()), // 한 번만 감싸면 됨
+  );
+}
+
+class CounterWidget extends ConsumerWidget {
+  @override
+  Widget build(context, ref) {
+    final count = ref.watch(counterProvider);
+    return Column(
+      children: [
+        Text('$count'),
+        ElevatedButton(
+          onPressed: () => ref.read(counterProvider.notifier).increment(),
+          child: const Text('+'),
+        ),
+      ],
+    );
+  }
+}
+```
+
+**장점**: 컴파일 타임 안전성, 테스트 용이, 강력한 기능
+**단점**: Provider보다 학습 곡선이 있음
+
+---
+
+## 3. Bloc (Business Logic Component)
+
+Bloc은 이벤트 기반의 상태관리 패턴으로, 대규모 앱에 적합합니다.
+
+### 설정
+
+```dart
+dependencies:
+  flutter_bloc: ^8.1.5
+```
+
+### Event, State, Bloc 정의
+
+```dart
+// Events
+abstract class CounterEvent {}
+class IncrementEvent extends CounterEvent {}
+class DecrementEvent extends CounterEvent {}
+
+// States
+abstract class CounterState {
+  final int count;
+  const CounterState(this.count);
+}
+class CounterInitial extends CounterState {
+  const CounterInitial() : super(0);
+}
+class CounterUpdated extends CounterState {
+  const CounterUpdated(int count) : super(count);
+}
+
+// Bloc
+class CounterBloc extends Bloc<CounterEvent, CounterState> {
+  CounterBloc() : super(const CounterInitial()) {
+    on<IncrementEvent>((event, emit) {
+      emit(CounterUpdated(state.count + 1));
+    });
+    on<DecrementEvent>((event, emit) {
+      emit(CounterUpdated(state.count - 1));
+    });
+  }
+}
+```
+
+### 사용
+
+```dart
+class CounterWidget extends StatelessWidget {
+  @override
+  Widget build(context) {
+    return BlocBuilder<CounterBloc, CounterState>(
+      builder: (context, state) => Column(
+        children: [
+          Text('${state.count}'),
+          ElevatedButton(
+            onPressed: () => context.read<CounterBloc>().add(IncrementEvent()),
+            child: const Text('+'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+**장점**: 예측 가능한 상태 흐름, 대규모 팀에 적합, 테스트 최적화
+**단점**: 보일러플레이트 코드가 많음
+
+---
+
+## 어떤 걸 선택해야 할까?
+
+| 기준 | Provider | Riverpod | Bloc |
+|------|----------|----------|------|
+| 학습 난이도 | ⭐ 쉬움 | ⭐⭐ 보통 | ⭐⭐⭐ 어려움 |
+| 보일러플레이트 | 적음 | 적음 | 많음 |
+| 타입 안전성 | 보통 | 높음 | 높음 |
+| 테스트 용이성 | 보통 | 높음 | 매우 높음 |
+| 추천 프로젝트 규모 | 소~중 | 중~대 | 중~대 |
+
+### 나의 추천
+
+- **처음 배우는 경우**: Provider로 시작
+- **개인 프로젝트 / 중간 규모**: Riverpod
+- **팀 프로젝트 / 대규모 앱**: Bloc
+
+모든 솔루션은 각자의 장단점이 있으니, 프로젝트 규모와 팀의 숙련도에 맞게 선택하는 것이 중요합니다.

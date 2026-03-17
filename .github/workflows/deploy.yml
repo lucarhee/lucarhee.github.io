@@ -1,0 +1,71 @@
+name: 🚀 Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # 수동 실행도 가능
+  workflow_dispatch:
+
+# GitHub Pages 배포에 필요한 권한
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 코드 체크아웃
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      # 2. Python 설정 (포스트 인덱스 생성용)
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # 3. 포스트 인덱스 자동 생성
+      - name: 📝 Generate posts index
+        run: python scripts/generate_posts_index.py
+
+      # 4. Flutter 설정
+      - name: 💙 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'stable'
+          cache: true
+
+      # 5. 의존성 설치
+      - name: 📦 Get dependencies
+        run: flutter pub get
+
+      # 6. Flutter Web 빌드
+      # base-href은 저장소 이름으로 자동 설정
+      - name: 🔨 Build Flutter Web
+        run: |
+          flutter build web \
+            --release \
+            --web-renderer canvaskit \
+            --base-href "/${{ github.event.repository.name }}/"
+
+      # 7. index.json 변경사항 커밋 (포스트 추가 시 인덱스 자동 업데이트)
+      - name: 💾 Commit updated index.json
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add assets/posts/index.json
+          git diff --staged --quiet || git commit -m "chore: update posts index [skip ci]"
+          git push || true
+
+      # 8. GitHub Pages 배포
+      - name: 🌐 Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
+          # 커스텀 도메인이 있으면 아래 주석 해제
+          # cname: yourdomain.com

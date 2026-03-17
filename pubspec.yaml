@@ -1,0 +1,50 @@
+name: flutter_blog
+description: Personal portfolio and blog site built with Flutter Web
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Routing
+  go_router: ^13.0.0
+
+  # Markdown rendering
+  flutter_markdown: ^0.7.3
+  markdown: ^7.2.2
+
+  # Fonts & Icons
+  google_fonts: ^6.2.1
+
+  # State management
+  provider: ^6.1.2
+
+  # URL launcher (for links in markdown)
+  url_launcher: ^6.3.0
+
+  # YAML frontmatter parsing
+  yaml: ^3.1.2
+
+  # HTTP (for loading assets in web)
+  http: ^1.2.0
+
+  # Animations
+  flutter_animate: ^4.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/posts/
+    - assets/posts/index.json
