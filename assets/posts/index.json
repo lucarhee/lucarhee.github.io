@@ -1,6 +1,18 @@
 {
   "posts": [
     {
+      "slug": "2026-03-17-test001",
+      "title": "새 글 등록 테스트 001",
+      "date": "2026-03-17",
+      "description": "페이지가 자동으로 등록되는지 성능 테스트",
+      "tags": [
+        "flutter",
+        "state-management",
+        "architecture"
+      ],
+      "readTime": 15
+    },
+    {
       "slug": "2026-03-15-flutter-web-github-pages",
       "title": "Flutter Web을 GitHub Pages에 배포하는 완벽 가이드",
       "date": "2026-03-15",
