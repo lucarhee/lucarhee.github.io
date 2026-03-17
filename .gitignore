@@ -51,7 +51,6 @@ app.*.symbols
 app.*.map.json
 
 # Web
-lib/generated_plugin_registrant.dart
 
 # Editor
 .idea/
